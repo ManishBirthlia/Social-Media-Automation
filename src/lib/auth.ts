@@ -8,7 +8,7 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
-    error:  "/login",
+    error: "/login",
   },
   providers: [
     GoogleProvider({
@@ -22,15 +22,15 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email:    { label: "Email",    type: "email" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
         const adminEmail = process.env.ADMIN_EMAIL ?? "admin@clipflow.app"
-        const adminPass  = process.env.ADMIN_PASSWORD ?? "admin123"
-        const adminName  = process.env.ADMIN_NAME ?? "Admin"
+        const adminPass = process.env.ADMIN_PASSWORD ?? "admin123"
+        const adminName = process.env.ADMIN_NAME ?? "Admin"
 
         if (credentials.email !== adminEmail) return null
 
