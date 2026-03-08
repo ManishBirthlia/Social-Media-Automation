@@ -51,3 +51,14 @@ The Prisma schema (`prisma/schema.prisma`) is complete and includes the 6 core d
 2.  **Database Migration**: Run `npm run db:push` / `npm run db:generate` to push the Prisma schema to a live PostgreSQL instance (e.g., Supabase).
 3.  **App Review Process**: Create developer apps on Google Cloud, Meta, TikTok, and Twitter to obtain OAuth constraints (Note: Meta/TikTok require 4-8 week app reviews for production).
 4.  **E2E Testing**: Upload a test video, trigger the AI generation, and perform a manual "Publish Now" action for at least one connected platform to verify the data flow.
+
+## 5. Troubleshooting Log (March 8, 2026)
+Today we encountered and addressed a few setup blockers:
+*   **Next.js Server Crash (`/dashboard`)**: The application failed to launch due to an invalid export syntax in `src/proxy.ts`. This was fixed by correctly importing and exporting NextAuth middleware to match Next.js 14+ conventions.
+*   **Database Sync Blockers (`prisma db push`)**: We were unable to push the database schema because Prisma was failing to read `DATABASE_URL` correctly due to Prisma 7 driver adapter preview features and incorrect formatting of the PostgreSQL connection string in `.env`.
+*   **Fixes Applied**: 
+    - Downgraded Prisma packages to a stable v5 version.
+    - Added quotes around the `DATABASE_URL` in `.env` to prevent the password from being parsed incorrectly.
+*   **Next Steps for Tomorrow**: 
+    - Confirm local PostgreSQL credentials and connectivity. 
+    - Successfully execute `npx prisma db push` to generate the missing tables (like `ScheduledJob`) so the `/dashboard` page can load without database connection panics.
