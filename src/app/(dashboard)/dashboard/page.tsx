@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db"
 import { Film, Send, CalendarClock, Link2, TrendingUp, Clock, CheckCircle2, AlertCircle, Plus } from "lucide-react"
 import { formatRelative, statusColor, platformColor } from "@/lib/utils"
 import Link from "next/link"
+import { ConnectPlatformsButton } from "@/components/dashboard/ConnectPlatformsButton"
 
 async function getDashboardData() {
   const [totalVideos, publishedCount, scheduledCount, recentVideos, recentLogs, connectedPlatforms] = await Promise.all([
@@ -10,30 +11,31 @@ async function getDashboardData() {
     prisma.scheduledJob.count({ where: { status: "PENDING" } }),
     prisma.video.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { platformContents: true } }),
     prisma.publishLog.findMany({ take: 8, orderBy: { publishedAt: "desc" }, include: { video: { select: { title: true } } } }),
-    prisma.oAuthToken.count(),
+    prisma.oAuthToken.findMany({ select: { platform: true, accountName: true } }),
   ])
-  return { totalVideos, publishedCount, scheduledCount, recentVideos, recentLogs, connectedPlatforms }
+  const connectedPlatformsCount = connectedPlatforms.length
+  return { totalVideos, publishedCount, scheduledCount, recentVideos, recentLogs, connectedPlatforms, connectedPlatformsCount }
 }
 
 const statCards = [
-  { key: "totalVideos",       label: "Total Videos",      icon: Film,          color: "indigo" },
-  { key: "publishedCount",    label: "Posts Published",   icon: Send,          color: "emerald" },
-  { key: "scheduledCount",    label: "Scheduled",         icon: CalendarClock, color: "blue" },
-  { key: "connectedPlatforms",label: "Platforms Connected",icon: Link2,        color: "violet" },
+  { key: "totalVideos", label: "Total Videos", icon: Film, color: "indigo" },
+  { key: "publishedCount", label: "Posts Published", icon: Send, color: "emerald" },
+  { key: "scheduledCount", label: "Scheduled", icon: CalendarClock, color: "blue" },
+  { key: "connectedPlatforms", label: "Platforms Connected", icon: Link2, color: "violet" },
 ] as const
 
 const colorMap = {
-  indigo:  { bg: "bg-indigo-50",  text: "text-indigo-600",  ring: "bg-indigo-600" },
+  indigo: { bg: "bg-indigo-50", text: "text-indigo-600", ring: "bg-indigo-600" },
   emerald: { bg: "bg-emerald-50", text: "text-emerald-600", ring: "bg-emerald-600" },
-  blue:    { bg: "bg-blue-50",    text: "text-blue-600",    ring: "bg-blue-600" },
-  violet:  { bg: "bg-violet-50",  text: "text-violet-600",  ring: "bg-violet-600" },
+  blue: { bg: "bg-blue-50", text: "text-blue-600", ring: "bg-blue-600" },
+  violet: { bg: "bg-violet-50", text: "text-violet-600", ring: "bg-violet-600" },
 }
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-8">
       {/* Welcome banner */}
       <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
@@ -41,10 +43,13 @@ export default async function DashboardPage() {
         <div className="relative">
           <h2 className="text-2xl font-bold mb-1">Welcome back 👋</h2>
           <p className="text-indigo-200 text-sm mb-4">Your AI social media pipeline is ready. Upload a video to get started.</p>
-          <Link href="/upload" className="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition shadow-sm">
-            <Plus className="w-4 h-4" />
-            Upload New Video
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/upload" className="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition shadow-sm">
+              <Plus className="w-4 h-4" />
+              Upload New Video
+            </Link>
+            <ConnectPlatformsButton connectedPlatforms={data.connectedPlatforms} />
+          </div>
         </div>
       </div>
 
@@ -57,7 +62,7 @@ export default async function DashboardPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-slate-500 text-sm font-medium">{label}</p>
-                  <p className="text-3xl font-bold text-slate-900 mt-1">{data[key]}</p>
+                  <p className="text-3xl font-bold text-slate-900 mt-1">{key === "connectedPlatforms" ? data.connectedPlatformsCount : (data as any)[key]}</p>
                 </div>
                 <div className={`w-11 h-11 ${c.bg} rounded-xl flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${c.text}`} />

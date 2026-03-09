@@ -12,8 +12,8 @@ import PlatformsSection from "@/components/Hero/PlatformsSection"
 export default async function RootPage() {
   const session = await getServerSession(authOptions)
   return (
-    <div className="min-h-screen bg-background">  
-      <Navbar session={session} />
+    <div className="min-h-screen bg-background">
+      <Navbar />
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />

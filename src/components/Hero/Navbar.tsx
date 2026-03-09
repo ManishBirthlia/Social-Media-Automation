@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Zap, User, Settings, LogOut, LayoutDashboard, Moon } from "lucide-react"
 import Link from "next/link"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 // Navbar uses framer-motion → must be a Client Component
 // Using Next.js <Link> for internal anchor links
@@ -16,15 +16,17 @@ const navLinks = [
   { label: "Pricing", href: "#pricing" },
 ]
 
-const Navbar = (session: any) => {
+const Navbar = () => {
+  const { data: session } = useSession()
+
   return (
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 glass"
+      className="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center"
     >
-      <div className="container mx-auto flex items-center justify-between py-4 px-6">
+      <div className="container mx-auto flex items-center justify-between px-6 w-full">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-display text-xl font-bold">
@@ -76,7 +78,7 @@ const Navbar = (session: any) => {
                     Profile
                   </Link>
                 </DropdownMenu.Item>
-                
+
                 <DropdownMenu.Item className="outline-none">
                   <Link href="/dashboard" className="flex items-center gap-2 px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors cursor-pointer">
                     <LayoutDashboard className="h-4 w-4" />
